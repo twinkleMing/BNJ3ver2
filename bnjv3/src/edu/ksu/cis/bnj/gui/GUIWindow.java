@@ -564,7 +564,7 @@ public class GUIWindow implements FocusRoute
 		{
 			window.Open(filename);
 		}
-
+		display.close();
 		try	{
 			IOPlugInLoader IOPL = IOPlugInLoader.getInstance();
 			window.open(bn);

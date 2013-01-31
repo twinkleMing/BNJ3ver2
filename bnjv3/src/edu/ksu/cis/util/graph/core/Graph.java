@@ -260,25 +260,25 @@ public class Graph
 		return 0;
 	}
 	/*! Get the vertex at an iterator
-	 * \param[in] enum
+	 * \param[in] enum_var
 	 * \return the vertex
 	 */
-	public Vertex get(int enum)
+	public Vertex get(int enum_var)
 	{
-		if (0 <= enum && enum < _VertexCount)
+		if (0 <= enum_var && enum_var < _VertexCount)
 		{
-			Vertex T = _VertexStore[enum].v();
+			Vertex T = _VertexStore[enum_var].v();
 			return T;
 		}
 		return null;
 	}
 	/*! Detemines if an iterator should stop iterating
-	 * \param[in] enum
+	 * \param[in] enum_var
 	 * \return true/false if the iterator is bad
 	 */
-	public boolean end(int enum)
+	public boolean end(int enum_var)
 	{
-		return enum < _VertexCount && enum >= 0;
+		return enum_var < _VertexCount && enum_var >= 0;
 	}
 	/*! get the number of vertices 
 	 * \return the number of vertices
