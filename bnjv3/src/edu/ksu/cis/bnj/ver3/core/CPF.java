@@ -19,8 +19,35 @@ public class CPF
 	protected Value[]		_Values;
 	protected BeliefNode[]	_DomainProduct;
 	protected int[]			_SizeBuffer;
+	
+	/* Print Table*/
+	public void Print()
+	{
+		int size = _Values.length;
+		int table_size = _DomainProduct.length;
+		int pos = -1;
+		for ( int j = 0; j < table_size; j++) {
+			System.out.print(_DomainProduct[j].getName()+"	");
+		}
+		System.out.println("Value");
+		
+		Value v;
+		int[] params = new int[table_size];
+		for (int i = 0; i < size; i++) {
+			params = realaddr2addr(i);
+			v = get(i);
+			for ( int j = 0; j < table_size; j++) {
+				System.out.print(params[j]+"	");
+			}
+			System.out.println(v.getExpr());
+		}
+	}
+	
+	
+	
 	/*! Creates an empty CPF
 	 */
+
 	public CPF()
 	{
 		_Values = null;

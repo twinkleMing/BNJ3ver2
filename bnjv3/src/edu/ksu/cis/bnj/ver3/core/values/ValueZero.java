@@ -15,4 +15,8 @@ public class ValueZero implements Value
 	{
 		return "0";
 	}
+	public double getValue()
+	{
+		return 0;
+	}
 }

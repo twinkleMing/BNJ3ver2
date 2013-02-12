@@ -358,6 +358,7 @@ public class GUIWindow implements FocusRoute
 	{
 		try
 		{
+			//System.out.println(f);
 			FileInputStream FIS = new FileInputStream(f);
 			IOPlugInLoader pil = IOPlugInLoader.getInstance();
 			Importer IMP = pil.GetImporterByExt(pil.GetExt(f));
