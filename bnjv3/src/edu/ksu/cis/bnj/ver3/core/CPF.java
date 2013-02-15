@@ -43,7 +43,14 @@ public class CPF
 		}
 	}
 	
-	
+	public int getNodeIndex(BeliefNode n)
+	{
+		for (int i = 0; i < _DomainProduct.length; i++) {
+			if (_DomainProduct[i] == n)
+				return i;
+		}
+		return -1;
+	}
 	
 	/*! Creates an empty CPF
 	 */

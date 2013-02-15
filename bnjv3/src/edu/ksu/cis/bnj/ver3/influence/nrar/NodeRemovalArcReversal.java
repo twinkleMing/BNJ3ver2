@@ -56,9 +56,31 @@ public class NodeRemovalArcReversal {
 
 	
 	
+	public void UtilityFormatChange() {
+		BeliefNode[] nodes = _OriginalNetwork.getNodes();
+		for ( int i = 0; i < nodes.length; i++) {
+			BeliefNode node = nodes[i];
+			if (node.getType() == node.NODE_UTILITY) {
+				CPF cpf = node.getCPF();
+				for ( int j = 0; j < cpf.size(); j++) {
+					Value v = cpf.get(j);
+					ValueUtility d = new ValueUtility(v);
+					cpf.put(j, d);
+				}
+				
+			}
+		}
+	}
 	
-	
-	
+	public void cpfUtilityFormatChange(CPF cpf) {
+		for ( int j = 0; j < cpf.size(); j++) {
+			Value v = cpf.get(j);
+			if ( v instanceof ValueZero)
+				v= new ValueDouble(0.0);
+			ValueUtility d = new ValueUtility(v);
+			cpf.put(j, d);
+		}		
+	}
 	public void BarrenNodesRemoval() {
 
 		BeliefNode node;
@@ -107,7 +129,7 @@ public class NodeRemovalArcReversal {
 		}
 		for (int i = 0; i < delete.size(); i++) {
 			node = OriginalNodes[delete.get(i)];
-			System.out.println("delet node: "+node.getName());
+			System.out.println("delete node: "+node.getName());
 			BeliefNode[] children = _OriginalNetwork.getChildren(node);
 			for (int j = 0; j < children.length; j++) {
 				nodeDisconnect(node, children[j]);
@@ -117,9 +139,82 @@ public class NodeRemovalArcReversal {
 		Show();
 	}
 	
-	
-	public void DecisionNodeRemoval() {
+	public boolean  decisionDisconnect(BeliefNode from, BeliefNode to) {
+		if (from.getType() != from.NODE_DECISION || to.getType() != to.NODE_UTILITY)
+				return false;
+		HashSet<BeliefNode>  from_parents = new HashSet<BeliefNode>(Arrays.asList(_OriginalNetwork.getParents(from)));
+		HashSet<BeliefNode>  to_parents = new HashSet<BeliefNode>(Arrays.asList(_OriginalNetwork.getParents(to)));
+		HashSet<BeliefNode> intersect = new HashSet<BeliefNode>(from_parents);
+		intersect.retainAll(to_parents);
+		from_parents.removeAll(intersect);
+		BeliefNode[] X = new BeliefNode[from_parents.size()];
+		BeliefNode[] Y = new BeliefNode[intersect.size()];		
+		BeliefNode[] Yi = new BeliefNode[to_parents.size()];
+		from_parents.toArray(X);
+		intersect.toArray(Y);
+		to_parents.toArray(Yi);
 		
+		CPF to_cpf = to.getCPF();
+		CPF cpf = new CPF(Y);
+		cpfUtilityFormatChange(cpf);
+		int index_from = to_cpf.getNodeIndex(from);
+		for ( int i = 0; i < to_cpf.size(); i++) {
+			int[] addr = to_cpf.realaddr2addr(i);
+			int v_from = addr[index_from];
+			ValueUtility v = (ValueUtility)to_cpf.get(i);
+			int[] Yaddr = cpf.getSubQuery(addr, Yi);
+			Value vDecision = cpf.get(Yaddr);
+			if (vDecision instanceof ValueZero) {
+				vDecision = new ValueUtility(v.getUtility(), null, null, from, v_from);
+				cpf.put(Yaddr, vDecision);
+			}
+			else {
+				ValueUtility voldDecision = (ValueUtility) vDecision;
+				double vold = ((ValueDouble) voldDecision.getUtility()).getValue();
+				double vcurr = ((ValueDouble) v.getUtility()).getValue();
+				if (vold < vcurr) {
+					vDecision = new ValueUtility(v.getUtility(), v.getNodes(), v.getValues(), from, v_from);
+					cpf.put(Yaddr, vDecision);
+				}
+				
+			}
+			
+		}
+		cpf.Print();
+		_OriginalNetwork.disconnect(from, to);
+		return true;
+
+	}
+	
+	
+	
+	public boolean ArcReversal(BeliefNode from, BeliefNode to) {
+		if (from.getType() != from.NODE_CHANCE || to.getType() != to.NODE_CHANCE)
+			return false;
+		
+		HashSet<BeliefNode>  from_parents = new HashSet<BeliefNode>(Arrays.asList(_OriginalNetwork.getParents(from)));
+		HashSet<BeliefNode>  to_parents = new HashSet<BeliefNode>(Arrays.asList(_OriginalNetwork.getParents(to)));
+		HashSet<BeliefNode> intersect = new HashSet<BeliefNode>(from_parents);
+		intersect.retainAll(to_parents);
+		from_parents.removeAll(intersect);
+		to_parents.removeAll(intersect);
+		to_parents.remove(from);
+		
+
+		BeliefNode[] X = new BeliefNode[from_parents.size()];
+		BeliefNode[] Y = new BeliefNode[intersect.size()];
+		BeliefNode[] Z = new BeliefNode[to_parents.size()];
+		from_parents.toArray(X);
+		intersect.toArray(Y);
+		to_parents.toArray(Z);
+		
+		
+		
+		
+		return true;
+	}
+	public void DecisionNodeRemoval() {
+
 		
 		
 	}
@@ -152,17 +247,20 @@ public class NodeRemovalArcReversal {
 		Whole_iter[Whole.length] = from;
 		
 		CPF cpf = new CPF(Whole);
+		cpfUtilityFormatChange(cpf);
 		CPF cpf_iter = new CPF(Whole_iter);
 		for ( int i = 0; i < cpf_iter.size(); i++) {
 			int[] addr = cpf_iter.realaddr2addr(i);
 			int[] XYi = from_cpf.getSubQuery(addr, Whole_iter);
 			Value pr = from_cpf.get(XYi);
 			int[] YZiv = to_cpf.getSubQuery(addr, Whole_iter);
-			Value v = to_cpf.get(YZiv);
+			Value v = (ValueDouble) ((ValueUtility)to_cpf.get(YZiv)).getUtility();
 			int[] XYZv = cpf.getSubQuery(addr, Whole_iter);
-			Value vv = cpf.get(XYZv);
+			ValueUtility vv_u = (ValueUtility)cpf.get(XYZv);
+			Value vv = (ValueDouble) vv_u.getUtility();
 			Value result = Field.add(vv, Field.mult(pr, v));
-			cpf.put(XYZv, result);
+			ValueUtility vnew = new ValueUtility(result, vv_u.getNodes(), vv_u.getValues());
+			cpf.put(XYZv, vnew);
 
 		}
 		cpf.Print();
@@ -179,9 +277,14 @@ public class NodeRemovalArcReversal {
 	
 	public void run(BeliefNetwork _bn) {
 		_OriginalNetwork = _bn;
+		UtilityFormatChange();
 		BarrenNodesRemoval();
 		ChanceNodeRemoval();
-		//Show();
+		BeliefNode[] Nodes = _OriginalNetwork.getNodes();
+		decisionDisconnect(Nodes[0], Nodes[1]);
+		Show();
+		decisionDisconnect(Nodes[2], Nodes[1]);
+		Show();
 		/*
 		BeliefNode[] Nodes = _OriginalNetwork.getNodes();
 		nodeDisconnect(Nodes[0], Nodes[2]);
