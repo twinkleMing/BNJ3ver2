@@ -1,4 +1,8 @@
 package edu.ksu.cis.bnj.ver3.core;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+
 import edu.ksu.cis.bnj.ver3.streams.OmniFormatV1_Reader;
 import edu.ksu.cis.bnj.ver3.streams.OmniFormatV1_Writer;
 import edu.ksu.cis.util.graph.core.*;
@@ -216,6 +220,56 @@ public class BeliefNetwork
 			if(nodes[i].getType() != BeliefNode.NODE_CHANCE)
 				return true;
 		}
+		return false;
+	}
+	
+	// check whether a is ancestor of b
+	public boolean isAncestor(BeliefNode a, BeliefNode b) {
+		HashSet<BeliefNode> ancestors = new HashSet<BeliefNode>();
+		ArrayList<BeliefNode> queue = new ArrayList<BeliefNode>();
+		queue.add(b);
+		while (!queue.isEmpty()) {
+			
+			BeliefNode head = queue.remove(0);
+			BeliefNode[] parents = getParents(head);
+			for ( int i = 0; i < parents.length; i++) {
+				BeliefNode parent = parents[i];
+				if ( parent == a) return true;
+				if (!ancestors.contains(parent)) {
+					queue.add(parent);
+					ancestors.add(parent);
+				}
+			}
+			
+		}
+		return false;
+	}
+	
+	public BeliefNode[] ancestors(BeliefNode n) {
+		HashSet<BeliefNode> ancestors = new HashSet<BeliefNode>();	
+		ArrayList<BeliefNode> queue = new ArrayList<BeliefNode>();
+		queue.add(n);
+		while (!queue.isEmpty()) {
+			BeliefNode head = queue.remove(0);
+			BeliefNode[] parents = getParents(head);
+			for ( int i = 0; i < parents.length; i++) {
+				BeliefNode parent = parents[i];
+				if (!ancestors.contains(parent)) {
+					queue.add(parent);
+					ancestors.add(parent);
+				}
+			}
+		}
+		BeliefNode[] ancestors_array = new BeliefNode[ancestors.size()];
+		ancestors.toArray(ancestors_array);
+		return ancestors_array;
+	}
+	
+	public boolean isConnected(BeliefNode from, BeliefNode to) {
+		BeliefNode[] to_parents = getParents(to);
+		for ( int i = 0; i < to_parents.length; i++)
+			if (to_parents[i] == from)
+				return true;
 		return false;
 	}
 }

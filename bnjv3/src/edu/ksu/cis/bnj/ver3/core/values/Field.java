@@ -1,5 +1,6 @@
 package edu.ksu.cis.bnj.ver3.core.values;
 import edu.ksu.cis.bnj.ver3.core.Value;
+import edu.ksu.cis.bnj.ver3.influence.nrar.ValueUtility;
 /*!
  * \file Field.java
  * \author Jeffrey M. Barber
@@ -13,6 +14,10 @@ public class Field
 	 */
 	public static Value add(Value a, Value b)
 	{
+		if (a instanceof ValueUtility) a = ((ValueUtility) a).getUtility();
+		if (b instanceof ValueUtility) b = ((ValueUtility) b).getUtility();
+		
+		
 		if ((a instanceof ValueDouble) && (b instanceof ValueDouble))
 		{
 			return new ValueDouble(((ValueDouble) a).getValue() + ((ValueDouble) b).getValue());
@@ -68,6 +73,10 @@ public class Field
 	 */
 	public static Value subtract(Value a, Value b)
 	{
+		if (a instanceof ValueUtility) a = ((ValueUtility) a).getUtility();
+		if (b instanceof ValueUtility) b = ((ValueUtility) b).getUtility();
+		
+		
 		if ((a instanceof ValueDouble) && (b instanceof ValueDouble))
 		{
 			return new ValueDouble(((ValueDouble) a).getValue() - ((ValueDouble) b).getValue());
@@ -110,6 +119,9 @@ public class Field
 	 */
 	public static Value mult(Value a, Value b)
 	{
+		if (a instanceof ValueUtility) a = ((ValueUtility) a).getUtility();
+		if (b instanceof ValueUtility) b = ((ValueUtility) b).getUtility();
+		
 		if ((a instanceof ValueDouble) && (b instanceof ValueDouble))
 		{
 			return new ValueDouble(((ValueDouble) a).getValue() * ((ValueDouble) b).getValue());
@@ -147,6 +159,9 @@ public class Field
 	 */
 	public static Value divide(Value a, Value b)
 	{
+		if (a instanceof ValueUtility) a = ((ValueUtility) a).getUtility();
+		if (b instanceof ValueUtility) b = ((ValueUtility) b).getUtility();
+		
 		if ((a instanceof ValueDouble) && (b instanceof ValueDouble))
 		{
 			if (((ValueDouble) b).getValue() != 0.0)

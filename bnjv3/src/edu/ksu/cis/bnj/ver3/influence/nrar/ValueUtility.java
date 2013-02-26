@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import edu.ksu.cis.bnj.ver3.core.BeliefNode;
 import edu.ksu.cis.bnj.ver3.core.Value;
+import edu.ksu.cis.bnj.ver3.core.values.Field;
 
 public class ValueUtility implements Value {
 	Value Utility;
@@ -36,9 +37,56 @@ public class ValueUtility implements Value {
 	}	
 	
 	
+	public void addDecision(BeliefNode n, int v) {
+		if (DecisionNodes == null) {
+			DecisionNodes = new BeliefNode[1];
+			DecisionValues = new int[1];
+			DecisionNodes[0] = n;
+			DecisionValues[0] = v;
+		}
+		else {
+			BeliefNode[] dn_new = new BeliefNode[DecisionNodes.length+1];
+			int[] dv_new = new int[dn_new.length];
+			System.arraycopy(DecisionNodes, 0, dn_new, 0,DecisionNodes.length);
+			dn_new[dn_new.length-1] = n;
+			System.arraycopy(DecisionValues, 0, dv_new, 0,DecisionValues.length);
+			dv_new[dv_new.length-1] = v;
+			DecisionNodes = dn_new;
+			DecisionValues = dv_new;
+		}
+	}
+	
+	public void addDecisions(BeliefNode[] nodes, int[] values) {
+		if (nodes == null && values == null)
+				return;
+		if (DecisionNodes == null) {
+			DecisionNodes = new BeliefNode[nodes.length];
+			DecisionValues = new int[values.length];
+			System.arraycopy(nodes, 0, DecisionNodes, 0,nodes.length);
+			System.arraycopy(values, 0, DecisionValues, 0,values.length);
+		}
+		else {
+			BeliefNode[] dn_new = new BeliefNode[DecisionNodes.length+nodes.length];
+			int[] dv_new = new int[dn_new.length];
+			System.arraycopy(DecisionNodes, 0, dn_new, 0,DecisionNodes.length);
+			System.arraycopy(nodes, 0, dn_new, DecisionNodes.length, nodes.length);
+			System.arraycopy(DecisionValues, 0, dv_new, 0,DecisionValues.length);
+			System.arraycopy(values, 0, dv_new, DecisionValues.length,values.length);
+			DecisionNodes = dn_new;
+			DecisionValues = dv_new;
+		}
+	}
+	
+	public void add(ValueUtility v) {
+		Utility = Field.add(Utility, v.getUtility());
+		addDecisions(v.getNodes(), v.getValues());
+	}
 	
 	public Value getUtility() {
 		return Utility;
+	}
+	public void putUtility(Value v) {
+		Utility = v;
 	}
 	public BeliefNode[] getNodes() {
 		return DecisionNodes;
