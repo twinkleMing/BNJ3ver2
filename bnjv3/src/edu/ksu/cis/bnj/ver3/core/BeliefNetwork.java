@@ -265,6 +265,27 @@ public class BeliefNetwork
 		return ancestors_array;
 	}
 	
+	public BeliefNode[] descendants(BeliefNode n) {
+		HashSet<BeliefNode> descendants = new HashSet<BeliefNode>();	
+		ArrayList<BeliefNode> queue = new ArrayList<BeliefNode>();
+		queue.add(n);
+		while (!queue.isEmpty()) {
+			BeliefNode head = queue.remove(0);
+			BeliefNode[] children = getChildren(head);
+			for ( int i = 0; i < children.length; i++) {
+				BeliefNode parent = children[i];
+				if (!descendants.contains(parent)) {
+					queue.add(parent);
+					descendants.add(parent);
+				}
+			}
+		}
+		BeliefNode[] descendants_array = new BeliefNode[descendants.size()];
+		descendants.toArray(descendants_array);
+		return descendants_array;
+	}
+	
+	
 	public boolean isConnected(BeliefNode from, BeliefNode to) {
 		BeliefNode[] to_parents = getParents(to);
 		for ( int i = 0; i < to_parents.length; i++)

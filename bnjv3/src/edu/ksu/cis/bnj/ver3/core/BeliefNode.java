@@ -175,4 +175,8 @@ public class BeliefNode
 			_Owner.translate(x - _Owner.getx(), y - _Owner.gety());
 		}
 	}
+	
+	public String toString() {
+		return _Name;
+	}
 }

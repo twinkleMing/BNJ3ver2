@@ -82,6 +82,19 @@ public class ValueUtility implements Value {
 		addDecisions(v.getNodes(), v.getValues());
 	}
 	
+	public void set(ValueUtility v) {
+		Utility = v.getUtility();
+		if (v.getNodes() == null) {
+			DecisionNodes = null;
+			DecisionValues = null;
+		}
+		else {
+			DecisionNodes = v.getNodes().clone();
+			DecisionValues = v.getValues().clone();			
+		}
+
+	}
+	
 	public Value getUtility() {
 		return Utility;
 	}

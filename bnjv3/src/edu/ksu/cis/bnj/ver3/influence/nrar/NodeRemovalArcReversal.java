@@ -57,7 +57,7 @@ public class NodeRemovalArcReversal {
 	
 	
 	public void UtilityFormatChange() {
-		BeliefNode[] nodes = _OriginalNetwork.getNodes();
+		BeliefNode[] nodes = _TransformedNetwork.getNodes();
 		for ( int i = 0; i < nodes.length; i++) {
 			BeliefNode node = nodes[i];
 			if (node.getType() == node.NODE_UTILITY) {
