@@ -9,10 +9,12 @@ import edu.ksu.cis.bnj.ver3.core.*;
 import edu.ksu.cis.bnj.ver3.core.values.Field;
 import edu.ksu.cis.bnj.ver3.core.values.ValueDouble;
 import edu.ksu.cis.bnj.ver3.core.values.ValueZero;
+import edu.ksu.cis.bnj.ver3.influence.Solver;
 import edu.ksu.cis.bnj.ver3.plugin.IOPlugInLoader;
 import edu.ksu.cis.bnj.ver3.streams.Importer;
 import edu.ksu.cis.bnj.ver3.streams.OmniFormatV1_Reader;
-public class VariableElimination
+
+public class VariableElimination implements Solver
 {
 	private BeliefNetwork _OriginalNetwork;
 	private BeliefNetwork _TransformedNetwork;
@@ -77,6 +79,7 @@ public class VariableElimination
 					if ( children.length == 0) {
 						flag = true;
 						System.out.println("delete barren node:"+node.getName());
+						//delete one barren node here
 						_TransformedNetwork.deleteBeliefNode(node);
 					}
 				}
@@ -123,7 +126,9 @@ public class VariableElimination
 		}
 		
 		for (int i = 0; i < parents_c.length; i++)
+			// connect all parents of chance node c to utility node v
 			_TransformedNetwork.connect(parents_c[i], v);
+		// delete chance node c
 		_TransformedNetwork.deleteBeliefNode(c);
 		v.setCPF(vnew_cpf);
 		
@@ -169,7 +174,7 @@ public class VariableElimination
 				vnew_cpf.put(vnew_addr, vnew_utility);
 			}
 		}
-		
+		//delete decision node d
 		_TransformedNetwork.deleteBeliefNode(d);
 		v.setCPF(vnew_cpf);	
 	}
@@ -236,11 +241,15 @@ public class VariableElimination
 			
 		}
 		
+		//disconnect edge from "from" to "to"
 		_TransformedNetwork.disconnect(from, to);
+		//connect edge from "to" to "from"
 		_TransformedNetwork.connect(to, from);
 		for ( int i = 0; i < X.length; i++)
+			// connect parents of "from" to "to"
 			_TransformedNetwork.connect(X[i], to);
 		for (int i = 0; i < Z.length; i++)
+			// connect parents of "to" to "from"
 			_TransformedNetwork.connect(Z[i], from);
 		
 		from.setCPF(from_cpf_new);
@@ -255,11 +264,13 @@ public class VariableElimination
 		}
 		BeliefNode sumU = new BeliefNode(name_sumU, nodes[0].getDomain());
 		sumU.setType(sumU.NODE_UTILITY);
+		// add one utility node of sum of all utility nodes
 		_TransformedNetwork.addBeliefNode(sumU);
 		for (int i = 0; i < nodes.length; i++) {
 			BeliefNode[] parents = _OriginalNetwork.getParents(nodes[i]);	
 			nodes_whole_set.addAll(Arrays.asList(parents));
 			for (int j = 0; j < parents.length; j++) {
+				//connect parents of all utility nodes to this new one
 				_TransformedNetwork.connect(parents[j],sumU);
 			}
 		}
@@ -284,6 +295,7 @@ public class VariableElimination
 		}
 		
 		for ( int i = 0; i < nodes.length; i++) {
+			//delete all old utility nodes
 			_TransformedNetwork.deleteBeliefNode(nodes[i]);
 		}
 		//Show();
@@ -459,5 +471,24 @@ public class VariableElimination
 		}
 
 		//System.out.println("Successfully execute this function!");
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "Node Removal and Arc Reversal Algorithm";
+	}
+
+	@Override
+	public void solve(BeliefNetwork bn) {
+		// TODO Auto-generated method stub
+		VariableElimination ve = new VariableElimination(bn);
+		ve.run();
+	}
+
+	@Override
+	public CPF queryMarginal(BeliefNode bnode) {
+		// TODO Auto-generated method stub
+		return bnode.getCPF();
 	}
 }

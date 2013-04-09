@@ -12,6 +12,7 @@ import edu.ksu.cis.bnj.ver3.core.Evidence;
 import edu.ksu.cis.bnj.ver3.core.values.ValueUnity;
 import edu.ksu.cis.bnj.ver3.dynamic.DynamicTyping;
 import edu.ksu.cis.bnj.ver3.influence.Solver;
+import edu.ksu.cis.bnj.ver3.influence.nrar.VariableElimination;
 import edu.ksu.cis.bnj.ver3.influence.simple.SimpleSolve;
 public class NetworkRun extends KDDCanvas
 {
@@ -25,6 +26,16 @@ public class NetworkRun extends KDDCanvas
 		if(REN._bn.getGraph().getNumberOfVertices() > 1)
 		{
 			
+			if (REN._bn.isInfluenceDiagram()) {
+				_Solve = new VariableElimination(REN._bn);
+				_Solve.solve(REN._bn);
+				REN.Switch2Run(_Solve);
+			}
+				
+			else {
+			
+			
+			
 			_Solve = new SimpleSolve();
 			_Solve.solve(REN._bn);
 //			REN.construct(((SimpleSolve)_Solve)._TransformedNetwork);
@@ -34,6 +45,7 @@ public class NetworkRun extends KDDCanvas
 			_LSR.run(REN._bn);
 			REN.Switch2Run(_LSR);
 			*/
+			}
 		}
 		layoutCallCenter = true;
 		ourRedraw();
